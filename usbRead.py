@@ -1,6 +1,9 @@
 import usb.core
 import usb.util
 import sys
+from signal import signal, SIGPIPE, SIG_DFL
+
+signal(SIGPIPE, SIG_DFL)
 
 # find our device
 dev = usb.core.find(idVendor=0x1908, idProduct=0x1320)
@@ -27,18 +30,18 @@ dev.set_configuration()
 cfg = dev.get_active_configuration()
 intf = cfg[(0,0)]
 
-#ep = usb.util.find_descriptor(
-#    intf,
-#    # match the first OUT endpoint
-#    custom_match = \
-#    lambda e: \
-#        usb.util.endpoint_direction(e.bEndpointAddress) == \
-#        usb.util.ENDPOINT_OUT)
+ep = usb.util.find_descriptor(
+    intf,
+    # match the first OUT endpoint
+    custom_match = \
+    lambda e: \
+        usb.util.endpoint_direction(e.bEndpointAddress) == 128) #\
+#        usb.util.ENDPOINT_IN)
 
-#assert ep is not None
+assert ep is not None
 
 # write the data
-msg = dev.write(1, 'abcdefsecret', 100)
-print(msg)
-
-#dev.ctrl_transfer(0x00, 9, 1, 0, "testing")
+msg = ep.read(50)
+#smsg = ''.join([chr(x) for x in msg])
+#print(smsg)
+print(usb.util.ENDPOINT_IN)
